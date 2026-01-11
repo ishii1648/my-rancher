@@ -81,8 +81,21 @@ end
 --- @return table 候補の配列
 function Launcher:collectChoices(query)
     local allChoices = {}
+    local lowerQuery = (query or ""):lower()
 
+    -- プレフィックスに一致する排他的プラグインを探す
+    local exclusivePlugin
     for _, plugin in ipairs(self.plugins) do
+        if plugin.prefix and lowerQuery:match("^" .. plugin.prefix:lower()) then
+            exclusivePlugin = plugin
+            break
+        end
+    end
+
+    -- 排他的プラグインがあればそれだけ、なければ全プラグイン
+    local pluginsToUse = exclusivePlugin and {exclusivePlugin} or self.plugins
+
+    for _, plugin in ipairs(pluginsToUse) do
         if plugin.getChoices then
             local choices = plugin:getChoices(query, self.config.pluginSettings[plugin.name] or {})
             for _, choice in ipairs(choices) do
