@@ -23,3 +23,8 @@ files["init.lua"] = {
         "hs.shutdownCallback",
     },
 }
+
+-- テストファイル用設定（bustedグローバルを許可）
+files["spec/**/*_spec.lua"] = {
+    std = "+busted",
+}
