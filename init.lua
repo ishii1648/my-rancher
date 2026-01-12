@@ -1,6 +1,9 @@
 -- init.lua
 -- Hammerspoonが最初に読み込むエントリーポイント
 
+-- hs CLI からのリロードを有効化
+require("hs.ipc")
+
 local config = require("config")
 local Launcher = require("core.launcher")
 
