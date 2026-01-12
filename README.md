@@ -100,26 +100,3 @@ git clone https://github.com/ishii1648/william.git
 }
 ```
 
-## プラグイン追加
-
-`plugins/` ディレクトリにLuaファイルを追加し、`config.json` の `plugins` に登録する。
-
-プラグインは以下のインターフェースを実装する:
-
-```lua
-local MyPlugin = {}
-
--- 候補を返す
-function MyPlugin:getChoices(query, settings)
-    return {
-        { text = "Item", subText = "Description" }
-    }
-end
-
--- 選択時のアクション
-function MyPlugin:execute(choice, settings)
-    -- 実行処理
-end
-
-return MyPlugin
-```
