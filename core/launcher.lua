@@ -124,13 +124,45 @@ end
 function Launcher:collectChoices(query)
     local allChoices = {}
     local lowerQuery = (query or ""):lower()
+    local resolvedQuery = query
 
-    -- プレフィックスに一致する排他的プラグインを探す
+    -- エイリアス解決とプレフィックスマッチング
     local exclusivePlugin = nil
-    for _, plugin in ipairs(self.plugins) do
-        if plugin.prefix and lowerQuery:match("^" .. plugin.prefix:lower()) then
-            exclusivePlugin = plugin
-            break
+    local aliasToPlugin = self.config._aliasToPlugin or {}
+
+    -- エイリアスを長さ順にソート（長いものを先にマッチ）
+    local sortedAliases = {}
+    for alias, _ in pairs(aliasToPlugin) do
+        table.insert(sortedAliases, alias)
+    end
+    table.sort(sortedAliases, function(a, b) return #a > #b end)
+
+    -- エイリアスをチェック
+    for _, alias in ipairs(sortedAliases) do
+        if lowerQuery:match("^" .. alias) then
+            local targetPluginName = aliasToPlugin[alias]
+            -- プラグインを検索
+            for _, plugin in ipairs(self.plugins) do
+                if plugin.name == targetPluginName then
+                    exclusivePlugin = plugin
+                    -- クエリをプラグインの本来のprefixに置換
+                    if plugin.prefix then
+                        resolvedQuery = plugin.prefix .. query:sub(#alias + 1)
+                    end
+                    break
+                end
+            end
+            if exclusivePlugin then break end
+        end
+    end
+
+    -- エイリアスでマッチしなければ通常のプレフィックスマッチ
+    if not exclusivePlugin then
+        for _, plugin in ipairs(self.plugins) do
+            if plugin.prefix and lowerQuery:match("^" .. plugin.prefix:lower()) then
+                exclusivePlugin = plugin
+                break
+            end
         end
     end
 
@@ -139,7 +171,7 @@ function Launcher:collectChoices(query)
 
     for _, plugin in ipairs(pluginsToUse) do
         if plugin.getChoices then
-            local choices = plugin:getChoices(query, self.config.pluginSettings[plugin.name] or {})
+            local choices = plugin:getChoices(resolvedQuery, self.config.pluginSettings[plugin.name] or {})
             for _, choice in ipairs(choices) do
                 choice.plugin = plugin.name
                 table.insert(allChoices, choice)

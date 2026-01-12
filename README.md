@@ -10,6 +10,8 @@ Alfredのようなランチャーを最小限の機能で自作したもの。Lu
 
 - **アプリランチャー**: インストール済みアプリケーションを検索・起動
 - **ghqプラグイン**: `gh`プレフィックスでghqリポジトリを検索し、Ghosttyで開く（Shift+EnterでGitHubページを開く）
+- **AWSプラグイン**: `aws`プレフィックスでAWSコンソールのサービスを検索・開く
+- **エイリアス機能**: プレフィックスに短縮エイリアスを設定可能（例: `g` → `gh`）
 
 ## セットアップ
 
@@ -44,55 +46,57 @@ git clone https://github.com/ishii1648/william.git
 |---------------|------|
 | (なし) | アプリケーション検索 |
 | `gh` | ghqリポジトリ検索 |
+| `aws` | AWSコンソール検索 |
+
+デフォルトのエイリアス:
+
+| エイリアス | 展開先 |
+|-----------|--------|
+| `g` | `gh`（ghqプラグイン） |
+| `a` | `aws`（AWSプラグイン） |
 
 ## 設定
 
-`config.lua` を編集してカスタマイズできる。
+`config.json` を編集してカスタマイズできる。
 
-```lua
-return {
-    -- ホットキー設定
-    hotkey = {
-        mods = {"cmd", "shift"},
-        key = "space",
+```json
+{
+  "hotkey": {
+    "mods": ["cmd", "shift"],
+    "key": "space"
+  },
+  "ui": {
+    "placeholder": "Search...",
+    "rows": 10,
+    "width": 40,
+    "darkMode": true,
+    "searchSubText": true
+  },
+  "plugins": ["app_launcher", "ghq", "aws"],
+  "pluginSettings": {
+    "app_launcher": {
+      "paths": ["/Applications", "/System/Applications", "~/Applications"]
     },
-
-    -- UI設定
-    ui = {
-        placeholder = "Search...",
-        rows = 10,
-        width = 40,
-        darkMode = true,
-    },
-
-    -- 有効なプラグイン
-    plugins = {
-        "app_launcher",
-        "ghq",
-    },
+    "aws": {
+      "region": "ap-northeast-1"
+    }
+  },
+  "aliases": {
+    "g": "ghq",
+    "a": "aws"
+  }
 }
 ```
 
-## プラグイン追加
+### エイリアス設定
 
-`plugins/` ディレクトリにLuaファイルを追加し、`config.lua` の `plugins` に登録する。
+`aliases` でプレフィックスの短縮エイリアスを設定できる。キーがエイリアス、値がプラグイン名。
 
-プラグインは以下のインターフェースを実装する:
-
-```lua
-local MyPlugin = {}
-
--- 候補を返す
-function MyPlugin:getChoices(query, settings)
-    return {
-        { text = "Item", subText = "Description" }
-    }
-end
-
--- 選択時のアクション
-function MyPlugin:execute(choice, settings)
-    -- 実行処理
-end
-
-return MyPlugin
+```json
+"aliases": {
+  "g": "ghq",
+  "a": "aws",
+  "r": "ghq"
+}
 ```
+
