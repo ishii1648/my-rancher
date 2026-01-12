@@ -1,7 +1,5 @@
 .PHONY: test lint ci deploy deploy-main help
 
-WORKTREE ?=
-
 # デフォルト: lint + test
 all: lint test
 
@@ -25,7 +23,7 @@ test-plugin-loader:
 
 # worktreeデプロイ（引数なしで現在のディレクトリから自動検出）
 deploy:
-	@./scripts/deploy.sh $(WORKTREE)
+	@./scripts/deploy.sh
 
 # メインをデプロイ
 deploy-main:
@@ -38,7 +36,6 @@ help:
 	@echo "  make test                        # テストを実行"
 	@echo "  make ci                          # lint + test"
 	@echo "  make deploy                      # 現在のディレクトリをデプロイ"
-	@echo "  make deploy WORKTREE=<name>      # 指定worktreeをデプロイ"
 	@echo "  make deploy-main                 # メインをデプロイ"
 	@echo ""
 	@echo "Available worktrees:"

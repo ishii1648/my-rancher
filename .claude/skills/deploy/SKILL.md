@@ -16,4 +16,3 @@ worktreeをHammerspoonにデプロイし、静的解析を実行します。
    - テストが通ることを確認
    - 失敗したら修正
 4. **lint と test が通ったら `make deploy` を実行**
-5. **成功したら Hammerspoon をリロードするよう案内**
