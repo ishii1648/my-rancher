@@ -126,6 +126,101 @@ function Ghq:getChoices(query, settings)
     return choices
 end
 
+--- ウィンドウタイトルでGhosttyウィンドウを検索してフォーカス
+--- @param targetPath string 対象のパス
+--- @return boolean フォーカスできたかどうか
+function Ghq.focusGhosttyWindowByPath(targetPath)
+    local ghostty = hs.application.find("Ghostty")
+    if not ghostty then return false end
+
+    -- パスの末尾のディレクトリ名を取得
+    local dirName = targetPath:match("([^/]+)$")
+    if not dirName then return false end
+
+    local windows = ghostty:allWindows()
+    for _, win in ipairs(windows) do
+        local title = win:title()
+        if title and title:find(dirName, 1, true) then
+            win:focus()
+            return true
+        end
+    end
+
+    -- 該当ウィンドウが見つからなくてもGhosttyをアクティベート
+    ghostty:activate()
+    return true
+end
+
+--- AppleScript経由でGhosttyの新規タブを作成しcdコマンドを実行
+--- @param targetPath string 移動先のパス
+function Ghq.openNewGhosttyTab(targetPath)
+    -- パス内のシングルクォートをエスケープ
+    local escapedPath = targetPath:gsub("'", "'\\''")
+
+    local script = string.format([[
+        tell application "Ghostty"
+            activate
+        end tell
+        delay 0.1
+        tell application "System Events"
+            tell process "Ghostty"
+                keystroke "t" using command down
+                delay 0.3
+                keystroke "cd '%s' && clear"
+                keystroke return
+            end tell
+        end tell
+    ]], escapedPath)
+
+    hs.osascript.applescript(script)
+end
+
+--- Ghosttyで対象パスを開く（非同期）
+--- 既存タブがあればフォーカス、なければ新規タブ作成
+--- @param targetPath string 対象のパス
+function Ghq.openInGhostty(targetPath)
+    -- Ghosttyが起動していない場合は新規タブを作成
+    local ghostty = hs.application.find("Ghostty")
+    if not ghostty then
+        Ghq.openNewGhosttyTab(targetPath)
+        return
+    end
+
+    -- 非同期でGhosttyの子シェルプロセスのcwdを取得
+    local script = [[
+        pids=$(pgrep -P $(pgrep -x Ghostty) 2>/dev/null)
+        for pid in $pids; do
+            lsof -p "$pid" 2>/dev/null | grep cwd | awk '{print $NF}'
+        done
+    ]]
+
+    local task = hs.task.new("/bin/sh", function(exitCode, stdout, _stderr)
+        if exitCode ~= 0 or not stdout or stdout == "" then
+            Ghq.openNewGhosttyTab(targetPath)
+            return
+        end
+
+        -- cwdリストをパース
+        local found = false
+        for cwd in stdout:gmatch("[^\n]+") do
+            if cwd == targetPath then
+                found = true
+                break
+            end
+        end
+
+        if found then
+            Ghq.focusGhosttyWindowByPath(targetPath)
+        else
+            Ghq.openNewGhosttyTab(targetPath)
+        end
+    end, {"-c", script})
+
+    if task then
+        task:start()
+    end
+end
+
 --- 選択時のアクション
 --- @param choice table 選択された候補
 --- @param _settings table プラグイン設定
@@ -138,8 +233,12 @@ function Ghq.execute(_self, choice, _settings)
     if mods.shift and choice.githubUrl then
         -- Shift+Enter: GitHubページを開く
         hs.urlevent.openURL(choice.githubUrl)
+    else
+        -- Enter: Ghosttyで開く（非同期）
+        if choice.fullPath then
+            Ghq.openInGhostty(choice.fullPath)
+        end
     end
-    -- 通常のEnter: 何もしない
 end
 
 return Ghq
