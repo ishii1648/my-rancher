@@ -65,6 +65,7 @@ mkdir -p "$HS_DIR"
 rsync -a --delete \
     --include='init.lua' \
     --include='config.lua' \
+    --include='config.json' \
     --include='assets/***' \
     --include='core/***' \
     --include='plugins/***' \
@@ -74,9 +75,9 @@ rsync -a --delete \
 
 echo "Deployed: $TARGET_PATH -> $HS_DIR"
 
-# Hammerspoon をリロード
+# Hammerspoon をリロード（非同期タイマーで即座に戻る）
 if command -v hs &> /dev/null; then
-    if hs -c "hs.reload()" 2>/dev/null; then
+    if hs -t 1 -c "hs.timer.doAfter(0.1, hs.reload)" 2>/dev/null; then
         echo "Hammerspoon reloaded"
     else
         echo "Note: Could not reload Hammerspoon (not running or IPC not loaded)"

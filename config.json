@@ -1,0 +1,26 @@
+{
+  "hotkey": {
+    "mods": ["cmd", "shift"],
+    "key": "space"
+  },
+  "ui": {
+    "placeholder": "Search...",
+    "rows": 10,
+    "width": 40,
+    "darkMode": true,
+    "searchSubText": true
+  },
+  "plugins": ["app_launcher", "ghq", "aws"],
+  "pluginSettings": {
+    "app_launcher": {
+      "paths": ["/Applications", "/System/Applications", "~/Applications"]
+    },
+    "aws": {
+      "region": "ap-northeast-1"
+    }
+  },
+  "aliases": {
+    "g": "ghq",
+    "a": "aws"
+  }
+}

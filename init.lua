@@ -4,8 +4,10 @@
 -- hs CLI からのリロードを有効化
 require("hs.ipc")
 
-local config = require("config")
+local ConfigLoader = require("core.config_loader")
 local Launcher = require("core.launcher")
+
+local config = ConfigLoader.load()
 
 -- ランチャーインスタンスを作成
 local launcher = Launcher.new(config)
