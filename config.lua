@@ -23,6 +23,7 @@ return {
     plugins = {
         "app_launcher",
         "ghq",
+        "aws",
     },
 
     -- プラグイン固有の設定
@@ -33,6 +34,9 @@ return {
                 "/System/Applications",
                 "~/Applications",
             },
+        },
+        aws = {
+            region = "ap-northeast-1",
         },
     },
 }
