@@ -12,6 +12,34 @@ Aws.prefix = "aws"
 -- デフォルトリージョン
 local DEFAULT_REGION = "ap-northeast-1"
 
+-- アイコンキャッシュ
+local iconCache = {}
+
+--- アイコン画像を取得（キャッシュ付き）
+--- @param iconName string アイコンファイル名
+--- @return hs.image|nil アイコン画像
+local function getIcon(iconName)
+    if not iconName then return nil end
+
+    -- テスト環境などでhsがない場合はnilを返す
+    if not hs or not hs.configdir or not hs.image then return nil end
+
+    -- キャッシュにあればそれを返す
+    if iconCache[iconName] then
+        return iconCache[iconName]
+    end
+
+    -- アイコンディレクトリのパス
+    local iconDir = hs.configdir .. "/plugins/aws/icons/"
+    local iconPath = iconDir .. iconName
+    local image = hs.image.imageFromPath(iconPath)
+
+    -- キャッシュに保存（nilでも保存して再読み込みを防ぐ）
+    iconCache[iconName] = image or false
+
+    return image
+end
+
 --- 初期化
 --- @param settings table プラグイン設定
 function Aws:init(settings)
@@ -78,10 +106,12 @@ function Aws:getChoices(query, settings)
 
         if shouldAdd then
             local url = Aws.buildConsoleUrl(service, region)
+            local icon = getIcon(service.icon)
 
             table.insert(choices, {
                 text = service.short_name,
                 subText = service.description,
+                image = icon or nil,
                 score = score,
                 service = service,
                 url = url,
