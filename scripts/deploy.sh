@@ -1,7 +1,7 @@
 #!/bin/bash
 # worktreeをHammerspoonにデプロイ（シンボリックリンクを切り替え）
 
-REPO_ROOT="/Users/sho/src/github.com/my-rancher"
+REPO_ROOT="/Users/sho/src/github.com/william"
 HS_LINK="$HOME/.hammerspoon"
 
 usage() {
