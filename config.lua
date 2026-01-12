@@ -22,6 +22,7 @@ return {
     -- 有効なプラグイン（読み込み順序）
     plugins = {
         "app_launcher",
+        "ghq",
     },
 
     -- プラグイン固有の設定
