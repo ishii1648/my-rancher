@@ -1,4 +1,4 @@
-.PHONY: test lint ci deploy help
+.PHONY: test lint ci deploy deploy-main help
 
 WORKTREE ?=
 
@@ -32,6 +32,10 @@ deploy:
 	fi
 	@./scripts/deploy.sh $(WORKTREE)
 
+# メインをデプロイ
+deploy-main:
+	@./scripts/deploy.sh main
+
 # ヘルプ
 help:
 	@echo "Usage:"
@@ -39,6 +43,7 @@ help:
 	@echo "  make test                        # テストを実行"
 	@echo "  make ci                          # lint + test"
 	@echo "  make deploy WORKTREE=<name>      # worktreeをデプロイ"
+	@echo "  make deploy-main                 # メインをデプロイ"
 	@echo ""
 	@echo "Available worktrees:"
 	@ls -1 .worktrees/ 2>/dev/null || echo "  (none)"

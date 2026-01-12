@@ -1,5 +1,5 @@
 #!/bin/bash
-# Hammerspoonのシンボリックリンク先をworktreeに切り替える
+# worktreeをHammerspoonにデプロイ（シンボリックリンクを切り替え）
 
 REPO_ROOT="/Users/sho/src/github.com/my-rancher"
 HS_LINK="$HOME/.hammerspoon"
@@ -35,5 +35,5 @@ fi
 rm "$HS_LINK"
 ln -s "$TARGET_PATH" "$HS_LINK"
 
-echo "Switched to: $TARGET_PATH"
+echo "Deployed: $TARGET_PATH"
 echo "Run 'hs.reload()' in Hammerspoon console to apply changes"
